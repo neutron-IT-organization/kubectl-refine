@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Function to fetch YAML manifests and remove specific fields
+get_yaml_without_managed_fields() {
+    local resource="$1"
+    # Fetch YAML using kubectl and remove fields using yq
+    kubectl get "$resource" -o yaml \
+     | yq eval 'del(.status)' - \
+     | yq eval 'del(.metadata.managedFields)' - \
+     | yq eval 'del(.metadata.annotations)' - \
+     | yq eval 'del(.spec.tolerations)' - \
+     | yq eval 'del(.metadata.ownerReferences)' - \
+     | yq eval 'del(.metadata.resourceVersion)' - \
+     | yq eval 'del(.metadata.uid)' - \
+     | yq eval 'del(.metadata.selfLink)' - \
+     | yq eval 'del(.metadata.creationTimestamp)' - \
+     | yq eval 'del(.metadata.generateName)'
+}
+
+# Check if kubectl and yq are installed
+if ! command -v kubectl &> /dev/null || ! command -v yq &> /dev/null; then
+    echo "Error: kubectl or yq is not installed. Please install them first."
+    exit 1
+fi
+
+# Check if resource type is provided
+if [ -z "$1" ]; then
+    echo "Usage: kubectl get-yaml-without-managed-fields <resource>"
+    exit 1
+fi
+
+# Fetch YAML and remove fields
+get_yaml_without_managed_fields "$1"
+
