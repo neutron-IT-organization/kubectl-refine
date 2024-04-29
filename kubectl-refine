@@ -25,7 +25,7 @@ fi
 
 # Check if resource type is provided
 if [ -z "$1" ]; then
-    echo "Usage: kubectl get-yaml-without-managed-fields <resource>"
+    echo "Usage: kubectl refine <resource>"
     exit 1
 fi
 
